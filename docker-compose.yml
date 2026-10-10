@@ -1,0 +1,60 @@
+services:
+  pr-agent:
+    image: pr-agent:${VERSION}
+    build:
+      dockerfile: Dockerfile
+      target: pr-agent
+      context: ./docker/
+      args:
+        VERSION: ${VERSION}
+    environment:
+      #PR_AGENT_EXTRA_CONFIG_URL: file:///path/to/shared.toml
+      CONFIG__MODEL: "github_copilot/claude-haiku-5.5" # github_copilot/gpt-6-luna"
+      CONFIG__FALLBACK_MODELS: "github_copilot/gpt-6-luna"
+      #CONFIG__FALLBACK_MODELS: "github_copilot/claude-haiku-5.5"
+      CONFIG__MODEL_WEAK: "github_copilot/gpt-6-luna"
+      CONFIG__MODEL_REASONING: "github_copilot/claude-haiku-5.5"
+      CONFIG__REASONING_EFFORT: "high"
+      # gpt-6-luna doesn't support temperature=0.2 while reasoning is active.
+      # Only temperature=1 is supported unless reasoning_effort resolves to 'none'.
+      #CONFIG__TEMPERATURE: "1"
+      CONFIG__NO_TEMPERATURE_MODELS: "github_copilot/gpt-6-luna"
+      #CONFIG__MAX_MODEL_TOKENS: "272000"
+      CONFIG__MAX_MODEL_TOKENS: "100000"
+      CONFIG__CUSTOM_MODEL_MAX_TOKENS: "100000"
+      CONFIG__OUTPUT_RUN_DETAILS: "true"
+      CONFIG__OUTPUT_RUN_COST: "true"
+      CONFIG__OUTPUT_RELEVANT_CONFIGURATIONS: "false"
+      CONFIG__RESPONSE_LANGUAGE: "en-NZ"
+      CONFIG__RESTRICTED_MODE: "true"
+      CONFIG__GIT_PROVIDER: "local"
+      CONFIG__use_repo_settings_file: "false"
+      CONFIG__use_global_settings_file: "false"
+      CONFIG__LOG_LEVEL: "DEBUG"
+      #LITELLM_LOG: "DEBUG"
+      #LITELLM__DROP_PARAMS: "true"
+      LITELLM_LOCAL_MODEL_COST_MAP: "false"
+      #GITHUB_COPILOT_ACCESS_TOKEN_FILE: "/access-token"
+    env_file: agent.env
+    tty: true
+    userns_mode: host
+    volumes:
+      - type: volume
+        source: litellm-data
+        target: /root/.config/litellm
+      #- type: bind
+      #  source: ./copilot-access-token.secret
+      #  target: /access-token
+      #  read_only: true
+      - type: bind
+        source: ./secrets.toml
+        target: /usr/local/lib/python3.14/site-packages/pr_agent/settings/.secrets.toml
+        read_only: true
+      - type: bind
+        source: ./projects
+        target: /projects
+    working_dir: /projects
+    command: ["--pr_url=main", "describe"]
+
+volumes:
+  litellm-data:
