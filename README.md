@@ -48,7 +48,19 @@ docker compose run --rm -it \
   pr-agent --pr_url=main describe
 ```
 
+You can pass extra arguments as per configuration reference, for example to
+pass extra instructions for a description task:
+
+```bash
+docker compose run --rm -it \
+  -w /projects/my-project \
+  pr-agent \
+  --pr_url=main describe \
+  --pr_description.extra_instructions="Point our areas with major regression risk"
+```
+
 ## References
 
 - [PR-Agent local Git provider](https://docs.pr-agent.ai/usage-guide/local_git_provider/)
 - [PR-Agent model configuration](https://docs.pr-agent.ai/usage-guide/changing_a_model/)
+- [PR-Agent configuration reference](https://github.com/the-pr-agent/pr-agent/blob/main/pr_agent/settings/configuration.toml)

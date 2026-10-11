@@ -8,33 +8,71 @@ services:
       args:
         VERSION: ${VERSION}
     environment:
-      #PR_AGENT_EXTRA_CONFIG_URL: file:///path/to/shared.toml
-      CONFIG__MODEL: "github_copilot/claude-haiku-5.5" # github_copilot/gpt-6-luna"
-      CONFIG__FALLBACK_MODELS: "github_copilot/gpt-6-luna"
-      #CONFIG__FALLBACK_MODELS: "github_copilot/claude-haiku-5.5"
+      # General config
+      # PR_AGENT_EXTRA_CONFIG_URL: file:///path/to/shared.toml
+      CONFIG__LOG_LEVEL: "DEBUG"
+
+      # LLM proxy / GitHub Copilot config
+      # LITELLM__DROP_PARAMS: "true"
+      LITELLM_LOCAL_MODEL_COST_MAP: "false"
+      # GITHUB_COPILOT_ACCESS_TOKEN_FILE: "/access-token"
+
+      # GPT-6 Luna as the default model
+      CONFIG__MODEL: "github_copilot/gpt-6-luna"
+      CONFIG__FALLBACK_MODELS: "github_copilot/claude-haiku-5.5"
       CONFIG__MODEL_WEAK: "github_copilot/gpt-6-luna"
-      CONFIG__MODEL_REASONING: "github_copilot/claude-haiku-5.5"
-      CONFIG__REASONING_EFFORT: "high"
+      CONFIG__MODEL_REASONING: "github_copilot/gemini-3.8-flash"
+      CONFIG__REASONING_EFFORT: "medium"
       # gpt-6-luna doesn't support temperature=0.2 while reasoning is active.
       # Only temperature=1 is supported unless reasoning_effort resolves to 'none'.
-      #CONFIG__TEMPERATURE: "1"
+      # CONFIG__TEMPERATURE: "1"
       CONFIG__NO_TEMPERATURE_MODELS: "github_copilot/gpt-6-luna"
-      #CONFIG__MAX_MODEL_TOKENS: "272000"
-      CONFIG__MAX_MODEL_TOKENS: "100000"
-      CONFIG__CUSTOM_MODEL_MAX_TOKENS: "100000"
+      CONFIG__MAX_MODEL_TOKENS: "272000"
+      # CONFIG__MAX_MODEL_TOKENS: "100000" # Claude Haiku 5.5
+      # CONFIG__CUSTOM_MODEL_MAX_TOKENS: "272000"
+
+      # Gemini-3.8 Flash as the default model
+      # CONFIG__MODEL: "github_copilot/gemini-3.8-flash"
+      # CONFIG__FALLBACK_MODELS: "github_copilot/claude-haiku-5.5"
+      # CONFIG__MODEL_WEAK: "github_copilot/gpt-6-luna"
+      # CONFIG__MODEL_REASONING: "github_copilot/gemini-3.8-flash"
+      # CONFIG__REASONING_EFFORT: "medium"
+      # CONFIG__MAX_MODEL_TOKENS: "272000"
+
+      # Output config
       CONFIG__OUTPUT_RUN_DETAILS: "true"
       CONFIG__OUTPUT_RUN_COST: "true"
       CONFIG__OUTPUT_RELEVANT_CONFIGURATIONS: "false"
       CONFIG__RESPONSE_LANGUAGE: "en-NZ"
       CONFIG__RESTRICTED_MODE: "true"
+
+      # PR review config
+      PR_REVIEWER__REQUIRE_SCORE_REVIEW: "true"
+      PR_REVIEWER__REQUIRE_TESTS_REVIEW: "true"
+      PR_REVIEWER__REQUIRE_CAN_BE_SPLIT_REVIEW: "true"
+      PR_REVIEWER__REQUIRE_SECURITY_REVIEW: "true"
+      PR_REVIEWER__REQUIRE_RISK_ASSESSMENT: "true"
+      PR_REVIEWER__REQUIRE_MERGE_RECOMMENDATION: "true"
+      PR_REVIEWER__REQUIRE_PRIORITY_FILES: "true"
+      PR_REVIEWER__ENABLE_INTRO_TEXT: "false"
+
+      # Local git provider config
       CONFIG__GIT_PROVIDER: "local"
-      CONFIG__use_repo_settings_file: "false"
-      CONFIG__use_global_settings_file: "false"
-      CONFIG__LOG_LEVEL: "DEBUG"
-      #LITELLM_LOG: "DEBUG"
-      #LITELLM__DROP_PARAMS: "true"
-      LITELLM_LOCAL_MODEL_COST_MAP: "false"
-      #GITHUB_COPILOT_ACCESS_TOKEN_FILE: "/access-token"
+      CONFIG__USE_REPO_SETTINGS_FILE: "false"
+      CONFIG__USE_GLOBAL_SETTINGS_FILE: "false"
+      PR_DESCRIPTION__ADD_ORIGINAL_USER_DESCRIPTION: "false"
+      PR_DESCRIPTION__GENERATE_AI_TITLE: "true"
+
+      # GitLab config
+      # CONFIG__GIT_PROVIDER: "gitlab"
+      # GITLAB__URL: "https://gitlab.com"
+      # GITLAB__PERSONAL_ACCESS_TOKEN: ""
+      # GITLAB__FEEDBACK_ON_DRAFT_PR: "false"
+      # GITLAB__PUBLISH_IMPROVE_AS_THREAD: "false"
+      # GITLAB__REPLY_TO_TRIGGER_COMMENT: "false"
+      # GITLAB__PUBLISH_CODE_SUGGESTIONS_AS_REVIEW: "true"
+      # GITLAB__RESOLVE_OUTDATED_INLINE_THREADS: "true"
+
     env_file: agent.env
     tty: true
     userns_mode: host
